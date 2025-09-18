@@ -64,8 +64,14 @@ if (devConsoleButton) {
     devConsoleButton.addEventListener('click', () => {
         const controls = initOrbitControls();
         controls.enabled = !controls.enabled;
-        devConsoleButton.style.backgroundColor = controls.enabled ? 'rgba(255, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.6)';
-        devConsoleButton.style.borderColor = controls.enabled ? '#ff8080' : 'white';
+        
+        if (controls.enabled) {
+            devConsoleButton.style.backgroundColor = 'rgba(255, 0, 0, 0.7)';
+            devConsoleButton.style.borderColor = '#ff8080';
+        } else {
+            // Hide the button when dev mode is turned off
+            devConsoleButton.classList.add('hidden');
+        }
     });
 }
 
@@ -257,11 +263,28 @@ function handleKeyUp(event) {
     }
 }
 
+// Added key handler to show the dev button again
+function handleGlobalKeyUp(event) {
+    if (event.key === '`' || event.key === '~') {
+        if (devConsoleButton) {
+            devConsoleButton.classList.toggle('hidden');
+            // If we're showing it, reset its style and disable controls
+            if (!devConsoleButton.classList.contains('hidden')) {
+                 const controls = getOrbitControls();
+                 if (controls) controls.enabled = false;
+                 devConsoleButton.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+                 devConsoleButton.style.borderColor = 'white';
+            }
+        }
+    }
+}
+
 window.addEventListener('pointerdown', onPointerDown);
 window.addEventListener('pointermove', onPointerMove);
 window.addEventListener('pointerup', onPointerUp);
 window.addEventListener('keydown', handleKeyDown);
 window.addEventListener('keyup', handleKeyUp);
+window.addEventListener('keyup', handleGlobalKeyUp); // Add new global listener
 
 // mount renderer and handle sizing
 import { mountRenderer } from './scene.js';
